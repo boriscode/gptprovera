@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provera da li je tekst ok ubaciti u chatgpt</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div id="app" class="container mt-5">
+        <div class="form-group">
+            <label for="apiKey">API Kljuc:</label>
+            <input type="text" id="apiKey" v-model="apiKey" class="form-control" placeholder="Enter your API key here">
+            <button @click="saveAPIKey" :disabled="apiKeySaved" class="btn btn-primary mt-2">{{ apiKeySaved ? 'Saved!' : 'Save API Key' }}</button>
+        </div>
+        <div class="form-group">
+            <label for="inputText">Ovde unesi tekst:</label>
+            <textarea id="inputText" v-model="inputText" class="form-control" rows="5" placeholder="Ovde unesi tekst da proverimo da li je ok za chatgpt ili ne"></textarea>
+            <button @click="sendToAPI" class="btn btn-success mt-2">Send to API</button>
+        </div>
+        
+        <div v-if="!isFlagged && apiResponse" class="mt-3">
+            <div class="alert alert-success" role="alert">
+                Text je u redu!
+            </div>
+        </div>
+        
+        
+        
+        <div v-if="warnings.length > 0" class="mt-3">
+            <h4>Upozorenje, tekst nije u redu zbog:</h4>
+            <div v-for="warning in warnings" class="alert alert-warning" role="alert">
+                {{ warning }}
+            </div>
+        </div>
+        <div v-if="apiResponse">
+            <h3>API Response:</h3>
+            <pre>{{ apiResponse }}</pre>
+        </div>
+
+        
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script>
+        new Vue({
+    el: '#app',
+    data: {
+        apiKey: '',
+        apiKeySaved: false,
+        inputText: '',
+        apiResponse: '',
+        warnings: [],
+        isFlagged: false
+    },
+    methods: {
+        saveAPIKey() {
+            if (!this.apiKey) {
+                alert('Please enter an API key');
+                return;
+            }
+            localStorage.setItem('OPENAI_API_KEY', this.apiKey);
+            this.apiKeySaved = true;
+        },
+        sendToAPI() {
+            const OPENAI_API_KEY = localStorage.getItem('OPENAI_API_KEY');
+
+            if (!OPENAI_API_KEY) {
+                this.apiResponse = 'Error: API key not set';
+                return;
+            }
+
+            if (!this.inputText) {
+                this.apiResponse = 'Error: Input text not provided';
+                return;
+            }
+
+            fetch('https://api.openai.com/v1/moderations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + OPENAI_API_KEY
+                },
+                body: JSON.stringify({
+                    input: this.inputText
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                this.apiResponse = JSON.stringify(data, null, 2);
+                this.warnings = [];
+                const flagged = data.results[0].flagged;
+                this.isFlagged = flagged;
+                if (flagged) {
+                    const categories = data.results[0].categories;
+                    for (const category in categories) {
+                        if (categories[category]) {
+                            this.warnings.push(category);
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                this.apiResponse = 'Error: ' + error.message;
+            });
+        }
+    }
+});
+
+    </script>
+</body>
+</html>
