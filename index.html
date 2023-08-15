@@ -11,12 +11,12 @@
         <div class="form-group">
             <label for="apiKey">API Kljuc:</label>
             <input type="text" id="apiKey" v-model="apiKey" class="form-control" placeholder="Enter your API key here">
-            <button @click="saveAPIKey" :disabled="apiKeySaved" class="btn btn-primary mt-2">{{ apiKeySaved ? 'Saved!' : 'Save API Key' }}</button>
+            <button @click="saveAPIKey" :disabled="apiKeySaved" class="btn btn-primary mt-2">{{ apiKeySaved ? 'Sacuvano!' : 'Sacuvaj' }}</button>
         </div>
         <div class="form-group">
             <label for="inputText">Ovde unesi tekst:</label>
             <textarea id="inputText" v-model="inputText" class="form-control" rows="5" placeholder="Ovde unesi tekst da proverimo da li je ok za chatgpt ili ne"></textarea>
-            <button @click="sendToAPI" class="btn btn-success mt-2">Send to API</button>
+            <button @click="sendToAPI" class="btn btn-success mt-2">Proveri</button>
         </div>
         
         <div v-if="!isFlagged && apiResponse" class="mt-3">
