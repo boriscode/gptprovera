@@ -56,7 +56,7 @@
     methods: {
         saveAPIKey() {
             if (!this.apiKey) {
-                alert('Please enter an API key');
+                alert('Unesi kljuc');
                 return;
             }
             localStorage.setItem('OPENAI_API_KEY', this.apiKey);
@@ -66,12 +66,12 @@
             const OPENAI_API_KEY = localStorage.getItem('OPENAI_API_KEY');
 
             if (!OPENAI_API_KEY) {
-                this.apiResponse = 'Error: API key not set';
+                this.apiResponse = 'Error: API kljuc nije podesen';
                 return;
             }
 
             if (!this.inputText) {
-                this.apiResponse = 'Error: Input text not provided';
+                this.apiResponse = 'Error: Tekst nije unesen';
                 return;
             }
 
